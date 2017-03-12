@@ -80,20 +80,25 @@ if($this->StartResultCache(false, md5($APPLICATION->GetCurPage())))
 					"DETAIL_PAGE_URL",
 					"PROPERTY_URL"
 				);
-				$elementRes = CIBlockElement::GetList(array('SORT'=>'ASC', 'CREATED' => 'DESC'), $elementFilter, false, false, $elementSelect);
+
+
+				$elementRes = CIBlockElement::GetList(['SORT'=>'ASC', 'CREATED' => 'DESC'], $elementFilter, false, false, $elementSelect);
+				$iblockData = \Bitrix\Iblock\IblockTable::getById($arParams['IBLOCK_ID'])->fetch();
+
 				while ($elementData = $elementRes->GetNext())
 				{
-					// подменяем стандартный юрл если есть кастомный
-					if($elementData['PROPERTY_URL_VALUE'])
-					{
-						$elementData['~DETAIL_PAGE_URL'] = $elementData['PROPERTY_URL_VALUE'];
-					}
+
+					// жестко задаем что текущий эл	емент в текущей категории (а не в первой попавшейся). Актуально если элемент в нескольких разделах
+					$elementData['IBLOCK_SECTION_ID'] = $arSection["ID"];
+					// перестраиваем ссылку
+					$elementData["DETAIL_PAGE_URL"] = CIBlock::ReplaceDetailUrl($iblockData['DETAIL_PAGE_URL'], $elementData, true, 'E');
+
 
 					$arResult["ITEMS"][] = array(
 						"ID" => $elementData["ID"],
 						"DEPTH_LEVEL" => ($arSection["DEPTH_LEVEL"] + 1),
-						"~NAME" => $elementData["~NAME"],
-						"~SECTION_PAGE_URL" => $elementData["~DETAIL_PAGE_URL"],
+						"~NAME" => $elementData["NAME"],
+						"~SECTION_PAGE_URL" => $elementData["DETAIL_PAGE_URL"],
 					);
 				}
 			}
