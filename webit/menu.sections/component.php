@@ -38,6 +38,13 @@ if($this->StartResultCache(false, md5($APPLICATION->GetCurPage())))
 			"IBLOCK_ACTIVE"=>"Y",
 			"<="."DEPTH_LEVEL" => $arParams["DEPTH_LEVEL"],
 		);
+		
+		// пользовательский фильтр
+		if(isset($arParams['FILTER']) && !empty($arParams['FILTER']))
+		{
+			$arFilter = array_merge($arFilter, $arParams['FILTER']);
+		}
+		
 		$arOrder = array(
 			"left_margin"=>"asc",
 		);
